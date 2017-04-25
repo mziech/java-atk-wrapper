@@ -16,58 +16,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.GNOME.Accessibility;
 
-import javax.accessibility.*;
-import java.awt.Point;
-import java.awt.Dimension;
+import java.awt.*;
 
-public class AtkImage {
 
-	AccessibleContext ac;
-	AccessibleIcon[] acc_icons;
+public interface AtkImage {
+    Point get_image_position(int coord_type);
 
-	public AtkImage (AccessibleContext ac) {
-		super();
-		this.ac = ac;
-		this.acc_icons = ac.getAccessibleIcon();
-	}
-	
-	public Point get_image_position (int coord_type) {
-		AccessibleComponent acc_component = ac.getAccessibleComponent();
-		if (acc_component == null) {
-			return null;
-		}
+    String get_image_description();
 
-		if (coord_type == AtkCoordType.SCREEN) {
-			return acc_component.getLocationOnScreen();
-		}
-
-		return acc_component.getLocation();
-	}
-
-	public String get_image_description () {
-		String desc = "";
-		if (acc_icons != null && acc_icons.length > 0) {
-			desc = acc_icons[0].getAccessibleIconDescription();
-
-			if (desc == null) {
-				desc = "";
-			}
-		}
-
-		return desc;
-	}
-
-	public Dimension get_image_size () {
-		Dimension d = new Dimension(0, 0);
-		if (acc_icons != null && acc_icons.length > 0) {
-			d.height = acc_icons[0].getAccessibleIconHeight();
-			d.width = acc_icons[0].getAccessibleIconWidth();
-		}
-
-		return d;
-	}
+    Dimension get_image_size();
 }
-

@@ -61,9 +61,13 @@ struct _JawUtilClass
   AtkUtilClass parent_class;
 };
 
+extern gboolean jaw_debug;
+
 guint jaw_util_get_tflag_from_jobj(JNIEnv *jniEnv, jobject jObj);
 gboolean jaw_util_is_same_jobject(gconstpointer a, gconstpointer b);
 JNIEnv* jaw_util_get_jni_env(void);
+gboolean jaw_util_check_exception(JNIEnv *jniEnv, gchar *message);
+jobject jaw_util_create_object(gchar *clazz, jobject ac);
 AtkRole jaw_util_get_atk_role_from_jobj(jobject jobj);
 AtkStateType jaw_util_get_atk_state_type_from_java_state(JNIEnv *jniEnv, jobject jobj);
 void jaw_util_get_rect_info(JNIEnv *jniEnv,

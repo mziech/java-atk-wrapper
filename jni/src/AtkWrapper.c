@@ -52,8 +52,6 @@ typedef enum _SignalType SignalType;
 gboolean jaw_accessibility_init (void);
 void jaw_accessibility_shutdown (void);
 
-gboolean jaw_debug = FALSE;
-
 static gint key_dispatch_result;
 static GMainLoop* jni_main_loop;
 
@@ -782,7 +780,7 @@ signal_emit_handler (gpointer p)
   if (jaw_impl == NULL)
   {
     if (jaw_debug)
-      g_warning("signal_emit_handler: jaw_impl == NULL");
+      g_warning("signal_emit_handler: jaw_impl == NULL for signal_id == %d", para->signal_id);
     free_callback_para(para);
     return G_SOURCE_REMOVE;
   }

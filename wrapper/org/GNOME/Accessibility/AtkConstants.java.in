@@ -1,6 +1,7 @@
 /*
  * Java ATK Wrapper for GNOME
  * Copyright (C) 2009 Sun Microsystems Inc.
+ * Copyright (C) 2017 Marco Ziech
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,21 +19,24 @@
  */
 package org.GNOME.Accessibility;
 
-import javax.swing.text.AttributeSet;
+/**
+ * System and package-dependent constants generated on package build.
+ */
+public class AtkConstants {
 
+    /**
+     * Path to this system's xprop binary.
+     */
+    static final String XPROP = "@XPROP@";
 
-public interface AtkEditableText extends AtkText {
-    void set_text_contents(String s);
+    /**
+     * Name of the binary package containing this wrapper, usually java-atk-wrapper.
+     */
+    public static final String PACKAGE_NAME = "@PACKAGE_NAME@";
 
-    void insert_text(String s, int position);
+    /**
+     * Dot-separated version number of the Java ATK wrapper package, e.g. 0.33.3
+     */
+    public static final String VERSION = "@VERSION@";
 
-    void copy_text(int start, int end);
-
-    void cut_text(int start, int end);
-
-    void delete_text(int start, int end);
-
-    void paste_text(int position);
-
-    boolean setRunAttributes(AttributeSet as, int start, int end);
 }

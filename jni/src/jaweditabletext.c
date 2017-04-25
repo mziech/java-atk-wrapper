@@ -70,21 +70,7 @@ gpointer
 jaw_editable_text_data_init (jobject ac)
 {
   EditableTextData *data = g_new0(EditableTextData, 1);
-
-  JNIEnv *jniEnv = jaw_util_get_jni_env();
-  jclass classEditableText = (*jniEnv)->FindClass(jniEnv,
-                                                  "org/GNOME/Accessibility/AtkEditableText");
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classEditableText,
-                                          "<init>",
-                                          "(Ljavax/accessibility/AccessibleContext;)V");
-  jobject jatk_editable_text = (*jniEnv)->NewObject(jniEnv,
-                                                    classEditableText,
-                                                    jmid,
-                                                    ac);
-  data->atk_editable_text = (*jniEnv)->NewGlobalRef(jniEnv,
-                                                    jatk_editable_text);
-
+  data->atk_editable_text = jaw_util_create_object("org/GNOME/Accessibility/AtkEditableText", ac);
   return data;
 }
 
@@ -119,6 +105,7 @@ jaw_editable_text_set_text_contents (AtkEditableText *text,
 
   jstring jstr = (*jniEnv)->NewStringUTF(jniEnv, string);
   (*jniEnv)->CallVoidMethod(jniEnv, atk_editable_text, jmid, jstr);
+  jaw_util_check_exception(jniEnv, "jaw_editable_text_set_text_contents");
 }
 
 void
@@ -144,6 +131,7 @@ jaw_editable_text_insert_text (AtkEditableText *text,
                             atk_editable_text,
                             jmid, jstr,
                             (jint)*position);
+  jaw_util_check_exception(jniEnv, "jaw_editable_text_insert_text");
   *position = *position + length;
   atk_text_set_caret_offset(ATK_TEXT(jaw_obj), *position);
 }
@@ -170,6 +158,7 @@ jaw_editable_text_copy_text (AtkEditableText *text,
                             jmid,
                             (jint)start_pos,
                             (jint)end_pos);
+  jaw_util_check_exception(jniEnv, "jaw_editable_text_copy_text");
 }
 
 void
@@ -192,6 +181,7 @@ jaw_editable_text_cut_text (AtkEditableText *text,
                             jmid,
                             (jint)start_pos,
                             (jint)end_pos);
+  jaw_util_check_exception(jniEnv, "jaw_editable_text_cut_text");
 }
 
 void
@@ -216,6 +206,7 @@ jaw_editable_text_delete_text (AtkEditableText *text,
                             jmid,
                             (jint)start_pos,
                             (jint)end_pos);
+  jaw_util_check_exception(jniEnv, "jaw_editable_text_delete_text");
 }
 
 void
@@ -238,6 +229,7 @@ jaw_editable_text_paste_text (AtkEditableText *text,
                             atk_editable_text,
                             jmid,
                             (jint)position);
+  jaw_util_check_exception(jniEnv, "jaw_editable_text_paste_text");
 }
 
 static gboolean
@@ -261,6 +253,9 @@ jaw_editable_text_set_run_attributes(AtkEditableText *text,
                                                                             (jobject)attrib_set,
                                                                             (jint)start_offset,
                                                                             (jint)end_offset);
+
+  jaw_util_check_exception(env, "jaw_editable_text_set_run_attributes");
+
   if (jresult == JNI_TRUE)
     return TRUE;
 

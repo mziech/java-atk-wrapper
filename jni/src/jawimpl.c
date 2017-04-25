@@ -94,31 +94,29 @@ static gpointer jaw_impl_parent_class = NULL;
 
 static GHashTable *typeTable = NULL;
 static GHashTable *objectTable = NULL;
-static gboolean jaw_debug = FALSE;
+
+static gint
+object_get_hash_code(JNIEnv *jniEnv, jobject obj)
+{
+  jclass classObject = (*jniEnv)->FindClass( jniEnv, "java/lang/Object" );
+  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
+                                          classObject,
+                                          "hashCode",
+                                          "()I");
+  return (gint)(*jniEnv)->CallIntMethod(jniEnv, obj, jmid);
+}
 
 static void
 object_table_insert (JNIEnv *jniEnv, jobject ac, JawImpl* jaw_impl)
 {
-  jclass classAccessibleContext = (*jniEnv)->FindClass( jniEnv,
-                                                       "javax/accessibility/AccessibleContext");
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classAccessibleContext,
-                                          "hashCode",
-                                          "()I");
-  gint hash_key = (gint)(*jniEnv)->CallIntMethod(jniEnv, ac, jmid);
+  gint hash_key = object_get_hash_code(jniEnv, ac);
   g_hash_table_insert(objectTable, GINT_TO_POINTER(hash_key), GINT_TO_POINTER(jaw_impl));
 }
 
 static JawImpl*
 object_table_lookup (JNIEnv *jniEnv, jobject ac)
 {
-  jclass classAccessibleContext = (*jniEnv)->FindClass( jniEnv,
-                                                       "javax/accessibility/AccessibleContext" );
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classAccessibleContext,
-                                          "hashCode",
-                                          "()I" );
-  gint hash_key = (gint)(*jniEnv)->CallIntMethod( jniEnv, ac, jmid );
+  gint hash_key = object_get_hash_code(jniEnv, ac);
   gpointer value = NULL;
   if (objectTable==NULL)
     return NULL;
@@ -130,21 +128,8 @@ object_table_lookup (JNIEnv *jniEnv, jobject ac)
 static void
 object_table_remove(JNIEnv *jniEnv, jobject ac)
 {
-  jclass classAccessibleContext = (*jniEnv)->FindClass( jniEnv,
-                                                       "javax/accessibility/AccessibleContext" );
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classAccessibleContext,
-                                          "hashCode",
-                                          "()I" );
-  gint hash_key = (gint)(*jniEnv)->CallIntMethod( jniEnv, ac, jmid );
-
+  gint hash_key = object_get_hash_code(jniEnv, ac);
   g_hash_table_remove(objectTable, GINT_TO_POINTER(hash_key));
-}
-
-GHashTable*
-jaw_impl_get_object_hash_table(void)
-{
-  return objectTable;
 }
 
 static void
@@ -318,7 +303,7 @@ jaw_impl_find_instance (JNIEnv *jniEnv, jobject ac)
   if (jaw_impl == NULL)
   {
     if (jaw_debug)
-      g_warning("jaw_impl_find_instance: jaw_impl");
+      g_warning("jaw_impl_find_instance: jaw_impl == NULL for ac == @%x", object_get_hash_code(jniEnv, ac));
     return NULL;
   }
 

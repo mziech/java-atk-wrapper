@@ -27,24 +27,30 @@ import java.io.*;
 import javax.accessibility.*;
 import java.awt.Toolkit;
 
+import static org.GNOME.Accessibility.AtkDebug.debug;
+
 public class AtkWrapper {
   static boolean accessibilityEnabled = false;
   static {
     try {
-      Process p = Runtime.getRuntime().exec("@XPROP@ -root");
-      BufferedReader b = new BufferedReader(new InputStreamReader (p.getInputStream ()));
-      String result;
-      while ((result = b.readLine()) != null) {
-        if (result.indexOf("AT_SPI_IOR") >= 0 || result.indexOf("AT_SPI_BUS") >= 0) {
-          System.loadLibrary("atk-wrapper");
-          if (AtkWrapper.initNativeLibrary())
-            accessibilityEnabled = true;
-          break;
+      debug("%s %s", AtkConstants.PACKAGE_NAME, AtkConstants.VERSION);
+      if (System.getProperty("atk.disabled") == null) {
+        Process p = Runtime.getRuntime().exec(AtkConstants.XPROP + " -root");
+        BufferedReader b = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String result;
+        while ((result = b.readLine()) != null) {
+          if (result.indexOf("AT_SPI_IOR") >= 0 || result.indexOf("AT_SPI_BUS") >= 0) {
+            System.loadLibrary("atk-wrapper");
+            if (AtkWrapper.initNativeLibrary()) {
+              accessibilityEnabled = true;
+              debug("ATK wrapper enabled!");
+            }
+            break;
+          }
         }
       }
     } catch (Exception e) {
       e.printStackTrace();
-      e.getCause();
     }
   }
 
@@ -69,8 +75,8 @@ public class AtkWrapper {
     */
     public void windowActivated(WindowEvent e) {
       Object o = e.getSource();
-      if ( o instanceof javax.accessibility.Accessible ) {
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+      if ( o instanceof Accessible ) {
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowActivate(ac);
       }
     }
@@ -88,8 +94,8 @@ public class AtkWrapper {
     */
     public void windowDeactivated(WindowEvent e) {
       Object o = e.getSource();
-      if (o instanceof javax.accessibility.Accessible) {
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+      if (o instanceof Accessible) {
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowDeactivate(ac);
       }
     }
@@ -102,8 +108,8 @@ public class AtkWrapper {
     */
     public void windowStateChanged(WindowEvent e) {
       Object o = e.getSource();
-      if (o instanceof javax.accessibility.Accessible) {
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+      if (o instanceof Accessible) {
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowStateChange(ac);
 
         if( (e.getNewState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH ) {
@@ -119,8 +125,8 @@ public class AtkWrapper {
     */
     public void windowDeiconified(WindowEvent e) {
       Object o = e.getSource();
-      if (o instanceof javax.accessibility.Accessible) {
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+      if (o instanceof Accessible) {
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowRestore(ac);
       }
     }
@@ -132,8 +138,8 @@ public class AtkWrapper {
     */
     public void windowIconified(WindowEvent e) {
       Object o = e.getSource();
-      if (o instanceof javax.accessibility.Accessible) {
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+      if (o instanceof Accessible) {
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowMinimize(ac);
       }
     }
@@ -144,9 +150,9 @@ public class AtkWrapper {
     */
     public void windowOpened(WindowEvent e) {
       Object o = e.getSource();
-      if ( o instanceof javax.accessibility.Accessible ) {
+      if ( o instanceof Accessible ) {
         boolean isToplevel = isToplevel(o);
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowOpen(ac, isToplevel);
       }
     }
@@ -158,9 +164,9 @@ public class AtkWrapper {
     */
     public void windowClosed(WindowEvent e) {
       Object o = e.getSource();
-      if (o instanceof javax.accessibility.Accessible) {
+      if (o instanceof Accessible) {
         boolean isToplevel = isToplevel(o);
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowClose(ac, isToplevel);
       }
     }
@@ -172,9 +178,9 @@ public class AtkWrapper {
     */
     public void windowClosing(WindowEvent e) {
       Object o = e.getSource();
-      if (o instanceof javax.accessibility.Accessible) {
+      if (o instanceof Accessible) {
         boolean isToplevel = isToplevel(o);
-        AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+        AccessibleContext ac = ((Accessible)o).getAccessibleContext();
         AtkWrapper.windowClose(ac, isToplevel);
       }
     }
@@ -204,8 +210,8 @@ public class AtkWrapper {
   */
   public void componentResized(ComponentEvent e) {
     Object o = e.getSource();
-    if (o instanceof javax.accessibility.Accessible) {
-      AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+    if (o instanceof Accessible) {
+      AccessibleContext ac = ((Accessible)o).getAccessibleContext();
       AtkWrapper.boundsChanged(ac);
     }
   }
@@ -219,8 +225,8 @@ public class AtkWrapper {
   */
   public void componentMoved(ComponentEvent e){
     Object o = e.getSource();
-    if (o instanceof javax.accessibility.Accessible) {
-      AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+    if (o instanceof Accessible) {
+      AccessibleContext ac = ((Accessible)o).getAccessibleContext();
       AtkWrapper.boundsChanged(ac);
     }
   }
@@ -231,8 +237,8 @@ public class AtkWrapper {
   */
   public void componentShown(ComponentEvent e) {
     Object o = e.getSource();
-    if (o instanceof javax.accessibility.Accessible) {
-      AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+    if (o instanceof Accessible) {
+      AccessibleContext ac = ((Accessible)o).getAccessibleContext();
       AtkWrapper.componentAdded(ac);
     }
   }
@@ -244,8 +250,8 @@ public class AtkWrapper {
   */
   public void componentHidden(ComponentEvent e){
     Object o = e.getSource();
-    if (o instanceof javax.accessibility.Accessible) {
-      AccessibleContext ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+    if (o instanceof Accessible) {
+      AccessibleContext ac = ((Accessible)o).getAccessibleContext();
       AtkWrapper.componentRemoved(ac);
     }
   }
@@ -260,9 +266,9 @@ public class AtkWrapper {
   */
   public static boolean isToplevel(Object o) {
     boolean isToplevel = false;
-    if (o instanceof java.awt.Window ||
-        o instanceof java.awt.Frame ||
-        o instanceof java.awt.Dialog) {
+    if (o instanceof Window ||
+        o instanceof Frame ||
+        o instanceof Dialog) {
       isToplevel = true;
     }
     return isToplevel;
@@ -288,25 +294,29 @@ public class AtkWrapper {
           win.addWindowListener(winAdapter);
           win.addWindowStateListener(winAdapter);
           win.addWindowFocusListener(winAdapter);
+          debug("AWT event: %s", e);
           break;
         case WindowEvent.WINDOW_LOST_FOCUS:
           AtkWrapper.dispatchFocusEvent(null);
+          debug("AWT event: %s", e);
           break;
         default:
           break;
         }
-      } else if(e instanceof ContainerEvent ) {
+      } else if( e instanceof ContainerEvent ) {
         switch( e.getID() ) {
           case ContainerEvent.COMPONENT_ADDED:
           {
-            java.awt.Component c = ((ContainerEvent)e).getChild();
+            Component c = ((ContainerEvent)e).getChild();
             c.addComponentListener(componentAdapter);
+            debug("AWT event: %s", e);
             break;
           }
           case ContainerEvent.COMPONENT_REMOVED:
           {
-	    java.awt.Component c = ((ContainerEvent)e).getChild();
+	    Component c = ((ContainerEvent)e).getChild();
             c.addComponentListener(componentAdapter);
+            debug("AWT event: %s", e);
             break;
           }
 
@@ -317,6 +327,7 @@ public class AtkWrapper {
         switch(e.getID()) {
         case FocusEvent.FOCUS_GAINED:
           AtkWrapper.dispatchFocusEvent(e.getSource());
+          debug("AWT event: %s", e);
           break;
         default:
           break;
@@ -344,8 +355,8 @@ public class AtkWrapper {
     try {
       if (eventSource instanceof AccessibleContext) {
         ctx = (AccessibleContext)eventSource;
-      } else if (eventSource instanceof javax.accessibility.Accessible) {
-        ctx = ((javax.accessibility.Accessible)eventSource).getAccessibleContext();
+      } else if (eventSource instanceof Accessible) {
+        ctx = ((Accessible)eventSource).getAccessibleContext();
       } else {
         return;
       }
@@ -381,13 +392,14 @@ public class AtkWrapper {
           Object child = accSelection.getAccessibleSelection(0);
           if (child instanceof AccessibleContext) {
             ctx = (AccessibleContext)child;
-          } else if (child instanceof javax.accessibility.Accessible) {
-            ctx = ((javax.accessibility.Accessible)child).getAccessibleContext();
+          } else if (child instanceof Accessible) {
+            ctx = ((Accessible)child).getAccessibleContext();
           } else {
             return;
           }
         }
       }
+      debug("focusNotify");
       focusNotify(ctx);
     } catch (Exception e) {
         e.printStackTrace();
@@ -407,21 +419,26 @@ public class AtkWrapper {
       AccessibleContext ac;
       if (o instanceof AccessibleContext) {
         ac = (AccessibleContext)o;
-      } else if (o instanceof javax.accessibility.Accessible) {
-        ac = ((javax.accessibility.Accessible)o).getAccessibleContext();
+      } else if (o instanceof Accessible) {
+        ac = ((Accessible)o).getAccessibleContext();
       } else {
         return;
+      }
+
+      if (ac == null) {
+        debug("No accessible context for property-change-event!");
       }
 
       Object oldValue = e.getOldValue();
       Object newValue = e.getNewValue();
       String propertyName = e.getPropertyName();
+      boolean debugProcessed = true;
+
       if( propertyName.equals(AccessibleContext.ACCESSIBLE_CARET_PROPERTY) ) {
         Object[] args = new Object[1];
         args[0] = newValue;
 
         emitSignal(ac, AtkSignal.TEXT_CARET_MOVED, args);
-
       } else if( propertyName.equals(AccessibleContext.ACCESSIBLE_TEXT_PROPERTY) ) {
         if (newValue == null) {
           return;
@@ -466,8 +483,8 @@ public class AtkWrapper {
       } else if( propertyName.equals(AccessibleContext.ACCESSIBLE_CHILD_PROPERTY) ) {
         if (oldValue == null && newValue != null) { //child added
           AccessibleContext child_ac;
-          if (newValue instanceof javax.accessibility.Accessible) {
-            child_ac = ((javax.accessibility.Accessible)newValue).getAccessibleContext();
+          if (newValue instanceof Accessible) {
+            child_ac = ((Accessible)newValue).getAccessibleContext();
           } else {
             return;
           }
@@ -480,8 +497,8 @@ public class AtkWrapper {
 
         } else if (oldValue != null && newValue == null) { //child removed
           AccessibleContext child_ac;
-          if (oldValue instanceof javax.accessibility.Accessible) {
-            child_ac = ((javax.accessibility.Accessible)oldValue).getAccessibleContext();
+          if (oldValue instanceof Accessible) {
+            child_ac = ((Accessible)oldValue).getAccessibleContext();
           } else {
             return;
           }
@@ -495,8 +512,8 @@ public class AtkWrapper {
         }
       } else if( propertyName.equals(AccessibleContext.ACCESSIBLE_ACTIVE_DESCENDANT_PROPERTY) ) {
         AccessibleContext child_ac;
-        if (newValue instanceof javax.accessibility.Accessible) {
-          child_ac = ((javax.accessibility.Accessible)newValue).getAccessibleContext();
+        if (newValue instanceof Accessible) {
+          child_ac = ((Accessible)newValue).getAccessibleContext();
         } else {
           return;
         }
@@ -506,7 +523,7 @@ public class AtkWrapper {
 
         emitSignal(ac, AtkSignal.OBJECT_ACTIVE_DESCENDANT_CHANGED, args);
 
-        } else if( propertyName.equals(AccessibleContext.ACCESSIBLE_SELECTION_PROPERTY) ) {
+      } else if( propertyName.equals(AccessibleContext.ACCESSIBLE_SELECTION_PROPERTY) ) {
           boolean isTextEvent = false;
           AccessibleRole role = ac.getAccessibleRole();
           if ((role == AccessibleRole.TEXT) ||
@@ -518,7 +535,7 @@ public class AtkWrapper {
             AccessibleSelection selection = ac.getAccessibleSelection();
             if (selection != null &&
                 selection.getAccessibleSelectionCount() > 0) {
-              java.lang.Object child = selection.getAccessibleSelection(0);
+              Object child = selection.getAccessibleSelection(0);
               dispatchFocusEvent(child);
             }
           }
@@ -527,9 +544,10 @@ public class AtkWrapper {
             emitSignal(ac, AtkSignal.OBJECT_SELECTION_CHANGED, null);
           }
 
+          debug("ACCESSIBLE_SELECTION_PROPERTY: role=%s textEvent=%b", role, isTextEvent);
         } else if( propertyName.equals(AccessibleContext.ACCESSIBLE_VISIBLE_DATA_PROPERTY) ) {
           emitSignal(ac, AtkSignal.OBJECT_VISIBLE_DATA_CHANGED, null);
-
+          debugProcessed = false; // causes too much clutter
         }else if( propertyName.equals(AccessibleContext.ACCESSIBLE_ACTION_PROPERTY) ) {
           Object[] args = new Object[2];
           args[0] = oldValue;
@@ -577,15 +595,15 @@ public class AtkWrapper {
         emitSignal(ac, AtkSignal.OBJECT_PROPERTY_CHANGE_ACCESSIBLE_TABLE_ROW_DESCRIPTION, null);
 
       } else if(propertyName.equals(AccessibleContext.ACCESSIBLE_STATE_PROPERTY)) {
-        javax.accessibility.Accessible parent = ac.getAccessibleParent();
-        javax.accessibility.AccessibleRole role = ac.getAccessibleRole();
-        javax.accessibility.AccessibleRole parent_role = null;
+        Accessible parent = ac.getAccessibleParent();
+        AccessibleRole role = ac.getAccessibleRole();
+        AccessibleRole parent_role = null;
         if (parent != null) {
           parent_role = parent.getAccessibleContext().getAccessibleRole();
         }
         if (role != null) {
-          if (newValue == javax.accessibility.AccessibleState.FOCUSED ||
-              newValue == javax.accessibility.AccessibleState.SELECTED) {
+          if (newValue == AccessibleState.FOCUSED ||
+              newValue == AccessibleState.SELECTED) {
             dispatchFocusEvent(o);
           }
         }
@@ -605,16 +623,22 @@ public class AtkWrapper {
         }
 
         if(parent instanceof javax.swing.JComboBox && oldValue ==
-           javax.accessibility.AccessibleState.VISIBLE) {
+           AccessibleState.VISIBLE) {
           objectStateChange(ac, AccessibleState.SHOWING, value);
         }
 
         objectStateChange(ac, state, value);
 
         if (parent instanceof javax.swing.JComboBox && newValue ==
-            javax.accessibility.AccessibleState.VISIBLE && oldValue == null) {
+            AccessibleState.VISIBLE && oldValue == null) {
           objectStateChange(ac, AccessibleState.SHOWING, value);
         }
+      } else {
+        debugProcessed = false;
+      }
+
+      if (debugProcessed) {
+        debug("processed event on %s: %s: %s -> %s", ac, propertyName, oldValue, newValue);
       }
     }
   };
@@ -632,37 +656,35 @@ public class AtkWrapper {
   public native static boolean initNativeLibrary();
   public native static void loadAtkBridge();
 
-  public native static void focusNotify(javax.accessibility.AccessibleContext ac);
+  public native static void focusNotify(AccessibleContext ac);
 
-  public native static void windowOpen(javax.accessibility.AccessibleContext ac,
+  public native static void windowOpen(AccessibleContext ac,
                                        boolean isToplevel);
-  public native static void windowClose(javax.accessibility.AccessibleContext ac,
+  public native static void windowClose(AccessibleContext ac,
                                         boolean isToplevel);
 
-  public native static void windowMinimize(javax.accessibility.AccessibleContext ac);
-  public native static void windowMaximize(javax.accessibility.AccessibleContext ac);
-  public native static void windowRestore(javax.accessibility.AccessibleContext ac);
-  public native static void windowActivate(javax.accessibility.AccessibleContext ac);
-  public native static void windowDeactivate(javax.accessibility.AccessibleContext ac);
-  public native static void windowStateChange(javax.accessibility.AccessibleContext ac);
+  public native static void windowMinimize(AccessibleContext ac);
+  public native static void windowMaximize(AccessibleContext ac);
+  public native static void windowRestore(AccessibleContext ac);
+  public native static void windowActivate(AccessibleContext ac);
+  public native static void windowDeactivate(AccessibleContext ac);
+  public native static void windowStateChange(AccessibleContext ac);
 
-  public native static void emitSignal(javax.accessibility.AccessibleContext ac, int id, Object[] args);
+  public native static void emitSignal(AccessibleContext ac, int id, Object[] args);
 
-  public native static void objectStateChange(javax.accessibility.AccessibleContext ac,
-                                              java.lang.Object state, boolean value);
+  public native static void objectStateChange(AccessibleContext ac,
+                                              Object state, boolean value);
 
-  public native static void componentAdded(javax.accessibility.AccessibleContext ac);
-  public native static void componentRemoved(javax.accessibility.AccessibleContext ac);
-  public native static void boundsChanged(javax.accessibility.AccessibleContext ac);
+  public native static void componentAdded(AccessibleContext ac);
+  public native static void componentRemoved(AccessibleContext ac);
+  public native static void boundsChanged(AccessibleContext ac);
   public native static boolean dispatchKeyEvent(AtkKeyEvent e);
 
-  public static void printLog(String str) {
-    System.out.println(str);
-  }
-
   public AtkWrapper() {
-    if (!accessibilityEnabled)
+    if (!accessibilityEnabled) {
+      debug("ATK wrapper not enabled!");
       return;
+    }
 
     toolkit.addAWTEventListener(globalListener,
                                 AWTEvent.WINDOW_EVENT_MASK |

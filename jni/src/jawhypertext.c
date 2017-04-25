@@ -58,15 +58,8 @@ gpointer
 jaw_hypertext_data_init (jobject ac)
 {
 	HypertextData *data = g_new0(HypertextData, 1);
-
-	JNIEnv *jniEnv = jaw_util_get_jni_env();
-	jclass classHypertext = (*jniEnv)->FindClass(jniEnv, "org/GNOME/Accessibility/AtkHypertext");
-	jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv, classHypertext, "<init>", "(Ljavax/accessibility/AccessibleContext;)V");
-	jobject jatk_hypertext = (*jniEnv)->NewObject(jniEnv, classHypertext, jmid, ac);
-	data->atk_hypertext = (*jniEnv)->NewGlobalRef(jniEnv, jatk_hypertext);
-
+	data->atk_hypertext = jaw_util_create_object("org/GNOME/Accessibility/AtkHypertext", ac);
 	data->link_table = g_hash_table_new_full(NULL, NULL, NULL, link_destroy_notify);
-
 	return data;
 }
 

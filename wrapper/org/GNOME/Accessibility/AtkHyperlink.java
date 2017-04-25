@@ -16,54 +16,19 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.GNOME.Accessibility;
 
-import javax.accessibility.*;
 
-public class AtkHyperlink {
+public interface AtkHyperlink {
+    String get_uri(int i);
 
-	AccessibleHyperlink acc_hyperlink;
+    Object get_object(int i);
 
-	public AtkHyperlink (AccessibleHyperlink hl) {
-		super();
-		acc_hyperlink = hl;
-	}
+    int get_end_index();
 
-	public String get_uri (int i) {
-		String s = "";
-		Object o = acc_hyperlink.getAccessibleActionObject(i);
-		if (o != null) {
-			s = o.toString();
-		}
+    int get_start_index();
 
-		return s;
-	}
+    boolean is_valid();
 
-	public Object get_object (int i) {
-		Object o = null;
-		Object anchor = acc_hyperlink.getAccessibleActionAnchor(i);
-		if (anchor instanceof javax.accessibility.Accessible) {
-			o = anchor;
-		}
-
-		return o;
-	}
-
-	public int get_end_index () {
-		return acc_hyperlink.getEndIndex();
-	}
-
-	public int get_start_index () {
-		return acc_hyperlink.getStartIndex();
-	}
-
-	public boolean is_valid () {
-		return acc_hyperlink.isValid();
-	}
-
-	public int get_n_anchors () {
-		return acc_hyperlink.getAccessibleActionCount();
-	}
+    int get_n_anchors();
 }
-

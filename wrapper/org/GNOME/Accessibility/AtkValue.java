@@ -17,39 +17,17 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.GNOME.Accessibility;
 
-import javax.accessibility.*;
 
-public class AtkValue {
+public interface AtkValue {
+    Number get_current_value();
 
-	AccessibleContext ac;
-	AccessibleValue acc_value;
+    double getMaximumValue();
 
-	public AtkValue (AccessibleContext ac) {
-		super();
-		this.acc_value = ac.getAccessibleValue();
-	}
+    double getMinimumValue();
 
-	public Number get_current_value () {
-		return acc_value.getCurrentAccessibleValue();
-	}
+    void setValue(Number n);
 
-	public double getMaximumValue () {
-		return acc_value.getMaximumAccessibleValue().doubleValue();
-	}
-
-	public double getMinimumValue () {
-		return acc_value.getMinimumAccessibleValue().doubleValue();
-	}
-
-  public void setValue (Number n) {
-    acc_value.setCurrentAccessibleValue(n);
-  }
-
-  public double getIncrement() {
-    return Double.MIN_VALUE;
-  }
+    double getIncrement();
 }
-

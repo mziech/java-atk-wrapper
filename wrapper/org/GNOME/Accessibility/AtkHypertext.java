@@ -16,55 +16,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.GNOME.Accessibility;
 
-import javax.accessibility.*;
 
-public class AtkHypertext extends AtkText {
-
-	AccessibleHypertext acc_hyper_text;
-
-	public AtkHypertext (AccessibleContext ac) {
-		super(ac);
-
-		AccessibleText ac_text = ac.getAccessibleText();
-		if (ac_text instanceof AccessibleHypertext) {
-			acc_hyper_text = (AccessibleHypertext)ac_text;
-		} else {
-			acc_hyper_text = null;
-		}
-	}
-
-	public AtkHyperlink get_link (int link_index) {
-		if (acc_hyper_text != null) {
-			AccessibleHyperlink link = acc_hyper_text.getLink(link_index);
-			if (link != null) {
-				return new AtkHyperlink(link);
-			}
-		}
-
-		return null;
-	}
-
-	public int get_n_links () {
-		int nLinks = 0;
-
-		if (acc_hyper_text != null) {
-			nLinks = acc_hyper_text.getLinkCount();
-		}
-
-		return nLinks;
-	}
-
-	public int get_link_index (int char_index) {
-		int index = 0;
-
-		if (acc_hyper_text != null) {
-			index = acc_hyper_text.getLinkIndex(char_index);
-		}
-
-		return index;
-	}
+public interface AtkHypertext extends AtkText {
+    AtkHyperlink get_link (int link_index);
+    int get_n_links ();
+    int get_link_index (int char_index);
 }
-

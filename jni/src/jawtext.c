@@ -109,17 +109,7 @@ gpointer
 jaw_text_data_init (jobject ac)
 {
   TextData *data = g_new0(TextData, 1);
-
-  JNIEnv *jniEnv = jaw_util_get_jni_env();
-  jclass classText = (*jniEnv)->FindClass(jniEnv,
-                                          "org/GNOME/Accessibility/AtkText");
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classText,
-                                          "<init>",
-                                          "(Ljavax/accessibility/AccessibleContext;)V");
-  jobject jatk_text = (*jniEnv)->NewObject(jniEnv, classText, jmid, ac);
-  data->atk_text = (*jniEnv)->NewGlobalRef(jniEnv, jatk_text);
-
+  data->atk_text = jaw_util_create_object("org/GNOME/Accessibility/AtkText", ac);
   return data;
 }
 
@@ -180,6 +170,11 @@ jaw_text_get_text (AtkText *text, gint start_offset, gint end_offset)
                                              (jint)start_offset,
                                              (jint)end_offset );
 
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_text"))
+  {
+    return NULL;
+  }
+
   return jaw_text_get_gtext_from_jstr(jniEnv, data, jstr);
 }
 
@@ -200,6 +195,10 @@ jaw_text_get_character_at_offset (AtkText *text, gint offset)
                                                atk_text,
                                                jmid,
                                                (jint)offset );
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_character_at_offset"))
+  {
+    return 0;
+  }
 
   return (gunichar)jcharacter;
 }
@@ -226,6 +225,11 @@ jaw_text_get_text_at_offset (AtkText *text,
                                                 jmid,
                                                 (jint)offset,
                                                 (jint)boundary_type );
+
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_text_at_offset"))
+  {
+    return NULL;
+  }
 
   if (jStrSeq == NULL)
   {
@@ -272,6 +276,10 @@ jaw_text_get_caret_offset (AtkText *text)
                                           "get_caret_offset",
                                           "()I");
   jint joffset = (*jniEnv)->CallIntMethod(jniEnv, atk_text, jmid);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_caret_offset"))
+  {
+    return -1;
+  }
 
   return (gint)joffset;
 }
@@ -298,6 +306,10 @@ jaw_text_get_character_extents (AtkText *text,
                                               jmid,
                                               (jint)offset,
                                               (jint)coords);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_character_extents"))
+  {
+    return;
+  }
 
   if (jrect == NULL)
   {
@@ -322,6 +334,10 @@ jaw_text_get_character_count (AtkText *text)
                                           "get_character_count",
                                           "()I");
   jint jcount = (*jniEnv)->CallIntMethod(jniEnv, atk_text, jmid);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_character_count"))
+  {
+    return -1;
+  }
 
   return (gint)jcount;
 }
@@ -345,6 +361,10 @@ jaw_text_get_offset_at_point (AtkText *text, gint x, gint y, AtkCoordType coords
                                           (jint)x,
                                           (jint)y,
                                           (jint)coords);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_offset_at_point"))
+  {
+    return -1;
+  }
 
   return (gint)joffset;
 }
@@ -379,6 +399,11 @@ jaw_text_get_range_extents (AtkText *text,
                                               (jint)end_offset,
                                               (jint)coord_type);
 
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_range_extents"))
+  {
+    return;
+  }
+
   if (!jrect)
   {
     return;
@@ -402,6 +427,10 @@ jaw_text_get_n_selections (AtkText *text)
                                           "get_n_selections",
                                           "()I");
   jint jselections = (*jniEnv)->CallIntMethod(jniEnv, atk_text, jmid);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_n_selections"))
+  {
+    return -1;
+  }
 
   return (gint)jselections;
 }
@@ -420,6 +449,10 @@ jaw_text_get_selection (AtkText *text, gint selection_num, gint *start_offset, g
                                           "get_selection",
                                           "()Lorg/GNOME/Accessibility/AtkText$StringSequence;");
   jobject jStrSeq = (*jniEnv)->CallObjectMethod(jniEnv, atk_text, jmid);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_get_selection"))
+  {
+    return NULL;
+  }
 
   if (jStrSeq == NULL)
   {
@@ -466,6 +499,10 @@ jaw_text_add_selection (AtkText *text, gint start_offset, gint end_offset)
                                                   jmid,
                                                   (jint)start_offset,
                                                   (jint)end_offset);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_add_selection"))
+  {
+    return FALSE;
+  }
 
   if (jresult == JNI_TRUE)
   {
@@ -493,6 +530,10 @@ jaw_text_remove_selection (AtkText *text, gint selection_num)
                                                   atk_text,
                                                   jmid,
                                                   (jint)selection_num);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_remove_selection"))
+  {
+    return FALSE;
+  }
 
   if (jresult == JNI_TRUE)
   {
@@ -518,6 +559,10 @@ jaw_text_set_selection (AtkText *text, gint selection_num, gint start_offset, gi
                                                   (jint)selection_num,
                                                   (jint)start_offset,
                                                   (jint)end_offset);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_set_selection"))
+  {
+    return FALSE;
+  }
 
   if (jresult == JNI_TRUE) {
     return TRUE;
@@ -544,6 +589,10 @@ jaw_text_set_caret_offset (AtkText *text, gint offset)
                                                   atk_text,
                                                   jmid,
                                                   (jint)offset);
+  if (jaw_util_check_exception(jniEnv, "jaw_text_set_caret_offset"))
+  {
+    return FALSE;
+  }
 
   if (jresult == JNI_TRUE)
   {

@@ -1,6 +1,7 @@
 /*
  * Java ATK Wrapper for GNOME
  * Copyright (C) 2009 Sun Microsystems Inc.
+ * Copyright (C) 2017 Marco Ziech
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,21 +19,17 @@
  */
 package org.GNOME.Accessibility;
 
-import javax.swing.text.AttributeSet;
+/**
+ * Helper class for printing debugging infromation to the console
+ */
+public class AtkDebug {
 
+    public static final boolean ENABLED = System.getProperty("atk.debug") != null;
 
-public interface AtkEditableText extends AtkText {
-    void set_text_contents(String s);
+    public static void debug(String format, Object... args) {
+        if (ENABLED) {
+            System.out.println(String.format(format, args));
+        }
+    }
 
-    void insert_text(String s, int position);
-
-    void copy_text(int start, int end);
-
-    void cut_text(int start, int end);
-
-    void delete_text(int start, int end);
-
-    void paste_text(int position);
-
-    boolean setRunAttributes(AttributeSet as, int start, int end);
 }

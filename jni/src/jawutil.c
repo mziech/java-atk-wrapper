@@ -42,6 +42,8 @@ static AtkObject* jaw_util_get_root(void);
 static const gchar* jaw_util_get_toolkit_name(void);
 static const gchar* jaw_util_get_toolkit_version(void);
 
+gboolean jaw_debug = FALSE;
+
 static GHashTable *key_listener_list = NULL;
 
 JavaVM *cachedJVM;
@@ -372,6 +374,39 @@ jaw_util_get_jni_env(void)
     fflush(stderr);
     exit(2);
   return NULL;
+}
+
+gboolean
+jaw_util_check_exception(JNIEnv *jniEnv, gchar *message)
+{
+  jthrowable e = (*jniEnv)->ExceptionOccurred(jniEnv);
+  if (e) {
+    g_printerr(" *** Exception caught during JNI method call: %s ***\n", message);
+    (*jniEnv)->ExceptionDescribe(jniEnv);
+    (*jniEnv)->ExceptionClear(jniEnv);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+jobject
+jaw_util_create_object(gchar *clazz, jobject ac)
+{
+  JNIEnv *jniEnv = jaw_util_get_jni_env();
+  jclass inferfaceClass = (*jniEnv)->FindClass(jniEnv, clazz);
+  jclass factoryClass = (*jniEnv)->FindClass(jniEnv, "org/GNOME/Accessibility/AtkFactory");
+  jmethodID createMethod = (*jniEnv)->GetStaticMethodID(
+                                        jniEnv,
+                                        factoryClass,
+                                        "create",
+                                        "(Ljava/lang/Class;Ljavax/accessibility/AccessibleContext;)Ljava/lang/Object;"
+                                      );
+  jobject obj = (*jniEnv)->CallStaticObjectMethod(jniEnv, factoryClass, createMethod, inferfaceClass, ac);
+  if (jaw_util_check_exception(jniEnv, "jaw_util_create_element"))
+  {
+    g_printerr(" *** Error during creation of %s ***\n", clazz);
+  }
+  return (*jniEnv)->NewGlobalRef(jniEnv, obj);
 }
 
 void

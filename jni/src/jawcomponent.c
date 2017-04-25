@@ -76,18 +76,7 @@ gpointer
 jaw_component_data_init (jobject ac)
 {
   ComponentData *data = g_new0(ComponentData, 1);
-
-  JNIEnv *jniEnv = jaw_util_get_jni_env();
-  jclass classComponent = (*jniEnv)->FindClass(jniEnv,
-                                               "org/GNOME/Accessibility/AtkComponent");
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classComponent,
-                                          "<init>",
-                                          "(Ljavax/accessibility/AccessibleContext;)V");
-
-  jobject jatk_component = (*jniEnv)->NewObject(jniEnv, classComponent, jmid, ac);
-  data->atk_component = (*jniEnv)->NewGlobalRef(jniEnv, jatk_component);
-
+  data->atk_component = jaw_util_create_object("org/GNOME/Accessibility/AtkComponent", ac);
   return data;
 }
 
@@ -115,6 +104,7 @@ coord_screen_to_local (JNIEnv *jniEnv, jobject jobj, gint *x, gint *y)
                                           "()Ljava/awt/Point;");
 
   jobject jpoint = (*jniEnv)->CallObjectMethod(jniEnv, jobj, jmid);
+  jaw_util_check_exception(jniEnv, "coord_screen_to_local");
 
   jclass classPoint = (*jniEnv)->FindClass(jniEnv, "java/awt/Point");
   jfieldID jfidX = (*jniEnv)->GetFieldID(jniEnv, classPoint, "x", "I");
@@ -148,6 +138,7 @@ jaw_component_contains (AtkComponent *component, gint x, gint y, AtkCoordType co
                                                     (jint)x,
                                                     (jint)y,
                                                     (jint)coord_type);
+  jaw_util_check_exception(jniEnv, "jaw_component_contains");
 
   if (jcontains == JNI_TRUE)
   {
@@ -177,6 +168,7 @@ jaw_component_ref_accessible_at_point (AtkComponent *component, gint x, gint y, 
                                                  (jint)x,
                                                  (jint)y,
                                                  (jint)coord_type);
+  jaw_util_check_exception(jniEnv, "jaw_component_ref_accessible_at_point");
 
   JawImpl* jaw_impl = jaw_impl_get_instance( jniEnv, child_ac );
 
@@ -213,6 +205,7 @@ jaw_component_get_extents (AtkComponent *component,
                                           "()Ljava/awt/Rectangle;");
 
   jobject jrectangle = (*jniEnv)->CallObjectMethod(jniEnv, atk_component, jmid);
+  jaw_util_check_exception(jniEnv, "jaw_component_get_extents");
 
   if (jrectangle == NULL)
   {
@@ -264,6 +257,7 @@ jaw_component_set_extents (AtkComponent *component,
                                                    (jint)width,
                                                    (jint)height,
                                                    (jint)coord_type);
+  jaw_util_check_exception(jniEnv, "jaw_component_set_extents");
 
   if (jcomponent == NULL)
   {
@@ -322,6 +316,7 @@ jaw_component_grab_focus (AtkComponent *component)
                                           "grab_focus",
                                           "()Z");
   jboolean jresult = (*jniEnv)->CallBooleanMethod(jniEnv, atk_component, jmid);
+  jaw_util_check_exception(jniEnv, "jaw_component_grab_focus");
 
   if (jresult == JNI_TRUE)
   {
@@ -348,6 +343,7 @@ jaw_component_get_layer (AtkComponent *component)
                                           "()I");
 
   jint jlayer = (*jniEnv)->CallIntMethod(jniEnv, atk_component, jmid);
+  jaw_util_check_exception(jniEnv, "jaw_component_get_layer");
 
   return (AtkLayer)jlayer;
 }

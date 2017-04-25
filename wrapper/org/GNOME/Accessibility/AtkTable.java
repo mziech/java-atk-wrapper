@@ -17,227 +17,67 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.GNOME.Accessibility;
 
-import javax.accessibility.*;
+import javax.accessibility.Accessible;
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleTable;
 
-public class AtkTable {
 
-	AccessibleContext ac;
-	AccessibleTable acc_table;
+public interface AtkTable {
+    AccessibleContext ref_at(int row, int column);
 
-  public AtkTable (AccessibleContext ac) {
-    this.ac = ac;
-    this.acc_table = ac.getAccessibleTable();
-  }
+    int get_column_at_index(int index);
 
-	public AccessibleContext ref_at (int row, int column) {
-		javax.accessibility.Accessible accessible = acc_table.getAccessibleAt(row, column);
-		if (accessible != null) {
-			return accessible.getAccessibleContext();
-		}
+    int get_row_at_index(int index);
 
-		return null;
-	}
+    int get_n_columns();
 
-	public int get_column_at_index (int index) {
-		int column = -1;
+    int get_n_rows();
 
-		if (acc_table instanceof AccessibleExtendedTable) {
-			column = ((AccessibleExtendedTable)acc_table).getAccessibleColumn(index);
-		}
+    int get_column_extent_at(int row, int column);
 
-		return column;
-	}
+    int get_row_extent_at(int row, int column);
 
-	public int get_row_at_index (int index) {
-		int row = -1;
+    AccessibleContext get_caption();
 
-		if (acc_table instanceof AccessibleExtendedTable) {
-			row = ((AccessibleExtendedTable)acc_table).getAccessibleRow(index);
-		}
+    void setCaption(Accessible a);
 
-		return row;
-	}
+    String get_column_description(int column);
 
-	public int get_n_columns () {
-		return acc_table.getAccessibleColumnCount();
-	}
+    void setColumnDescription(int column, String description);
 
-	public int get_n_rows () {
-		return acc_table.getAccessibleRowCount();
-	}
+    String get_row_description(int row);
 
-	public int get_column_extent_at (int row, int column) {
-		return acc_table.getAccessibleColumnExtentAt(row, column);
-	}
+    void setRowDescription(int row, String description);
 
-	public int get_row_extent_at (int row, int column) {
-		return acc_table.getAccessibleRowExtentAt(row, column);
-	}
+    AccessibleContext get_column_header(int column);
 
-	public AccessibleContext get_caption () {
-		javax.accessibility.Accessible accessible = acc_table.getAccessibleCaption();
+    void setColumnHeader (int column, AccessibleTable table);
 
-		if (accessible != null) {
-			return accessible.getAccessibleContext();
-		}
+    AccessibleContext get_row_header(int row);
 
-		return null;
-	}
+    void setRowHeader(int row, AccessibleTable table);
 
-    /**
-     *
-     * @param a an Accessible object
-     */
-    public void setCaption(Accessible a) {
-        acc_table.setAccessibleCaption(a);
-    }
+    AccessibleContext get_summary();
 
-	public String get_column_description (int column) {
-		javax.accessibility.Accessible accessible =
-			acc_table.getAccessibleColumnDescription(column);
+    void setSummary(Accessible a);
 
-		if (accessible != null) {
-			return accessible.getAccessibleContext().getAccessibleDescription();
-		}
+    int[] get_selected_columns();
 
-		return "";
-	}
+    int[] get_selected_rows();
 
-/**
- *
- * @param column an int representing a column in table
- * @param description a String object representing the description text to set for the
- *                    specified column of the table
- */
-  public void setColumnDescription(int column, String description) {
-    javax.accessibility.Accessible accessible = acc_table.getAccessibleColumnDescription(column);
-    if (description.equals(accessible.toString()) && accessible != null) {
-      acc_table.setAccessibleColumnDescription(column, accessible);
-    }
-  }
+    boolean is_column_selected(int column);
 
-	public String get_row_description (int row) {
-		javax.accessibility.Accessible accessible =
-			acc_table.getAccessibleRowDescription(row);
+    boolean is_row_selected(int row);
 
-		if (accessible != null) {
-			return accessible.getAccessibleContext().getAccessibleDescription();
-		}
+    boolean is_selected(int row, int column);
 
-		return "";
-	}
+    boolean addColumnSelection(int column);
 
- /**
-  *
-  * @param row an int representing a row in table
-  * @param description a String object representing the description text to set for the
-  *                    specified row of the table
-  */
-  public void setRowDescription(int row, String description) {
-    javax.accessibility.Accessible accessible = acc_table.getAccessibleRowDescription(row);
-    if (description.equals(accessible.toString()) && accessible != null) {
-      acc_table.setAccessibleRowDescription(row, accessible);
-    }
-  }
+    boolean addRowSelection(int row);
 
-	public AccessibleContext get_column_header (int column) {
-		AccessibleTable accessibleTable =
-			acc_table.getAccessibleColumnHeader();
+    boolean remove_column_selection(int column);
 
-		if (accessibleTable != null) {
-			javax.accessibility.Accessible accessible = accessibleTable.getAccessibleAt(0, column);
-
-			if (accessible != null) {
-				return accessible.getAccessibleContext();
-			}
-		}
-
-		return null;
-	}
-
-    /**
-     *
-     * @param column an int representing a column in table
-     * @param table an AccessibleTable object
-     */
-    public void setColumnHeader (int column, AccessibleTable table) {
-        acc_table.setAccessibleColumnHeader(table);
-    }
-
-	public AccessibleContext get_row_header (int row) {
-		AccessibleTable accessibleTable =
-			acc_table.getAccessibleRowHeader();
-
-		if (accessibleTable != null) {
-			javax.accessibility.Accessible accessible = accessibleTable.getAccessibleAt(row, 0);
-
-			if (accessible != null) {
-				return accessible.getAccessibleContext();
-			}
-		}
-
-		return null;
-	}
-
-    public void setRowHeader (int row, AccessibleTable table) {
-        acc_table.setAccessibleRowHeader(table);
-    }
-
-	public AccessibleContext get_summary () {
-		javax.accessibility.Accessible accessible = acc_table.getAccessibleSummary();
-
-		if (accessible != null) {
-			return accessible.getAccessibleContext();
-		}
-
-		return null;
-	}
-
-    /**
-     *
-     * @param a the Accessible object to set summary for
-     */
-    public void setSummary(Accessible a) {
-        acc_table.setAccessibleSummary(a);
-    }
-
-	public int[] get_selected_columns () {
-		return acc_table.getSelectedAccessibleColumns();
-	}
-
-	public int[] get_selected_rows () {
-		return acc_table.getSelectedAccessibleRows();
-	}
-
-	public boolean is_column_selected (int column) {
-		return acc_table.isAccessibleColumnSelected(column);
-	}
-
-	public boolean is_row_selected (int row) {
-		return acc_table.isAccessibleRowSelected(row);
-	}
-
-	public boolean is_selected (int row, int column) {
-		return acc_table.isAccessibleSelected(row, column);
-	}
-
-  public boolean addColumnSelection (int column) {
-    return false;
-  }
-
-  public boolean addRowSelection (int row) {
-    return false;
-  }
-
-	public boolean remove_column_selection (int column) {
-		return false;
-	}
-
-	public boolean remove_row_selection (int row) {
-		return false;
-	}
+    boolean remove_row_selection(int row);
 }
-

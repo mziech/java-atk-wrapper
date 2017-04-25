@@ -61,17 +61,7 @@ gpointer
 jaw_action_data_init (jobject ac)
 {
   ActionData *data = g_new0(ActionData, 1);
-
-  JNIEnv *jniEnv = jaw_util_get_jni_env();
-  jclass classAction = (*jniEnv)->FindClass(jniEnv,
-                                            "org/GNOME/Accessibility/AtkAction");
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv,
-                                          classAction,
-                                          "<init>",
-                                          "(Ljavax/accessibility/AccessibleContext;)V");
-  jobject jatk_action = (*jniEnv)->NewObject(jniEnv, classAction, jmid, ac);
-  data->atk_action = (*jniEnv)->NewGlobalRef(jniEnv, jatk_action);
-
+  data->atk_action = jaw_util_create_object("org/GNOME/Accessibility/AtkAction", ac);
   return data;
 }
 
@@ -138,6 +128,7 @@ jaw_action_do_action (AtkAction *action, gint i)
                                                   atk_action,
                                                   jmid,
                                                   (jint)i);
+  jaw_util_check_exception(jniEnv, "jaw_action_do_action");
 
   if (jresult == JNI_TRUE)
     return TRUE;
@@ -159,7 +150,10 @@ jaw_action_get_n_actions (AtkAction *action)
                                           classAtkAction,
                                           "get_n_actions", "()I");
 
-  return (gint)(*jniEnv)->CallIntMethod(jniEnv, atk_action, jmid);
+  jint n = (*jniEnv)->CallIntMethod(jniEnv, atk_action, jmid);
+  jaw_util_check_exception(jniEnv, "jaw_action_get_n_actions");
+
+  return (gint)n;
 }
 
 static const gchar*
@@ -180,6 +174,8 @@ jaw_action_get_description (AtkAction *action, gint i)
                                              atk_action,
                                              jmid,
                                              (jint)i);
+
+  jaw_util_check_exception(jniEnv, "jaw_action_get_description");
 
   if (data->action_description != NULL)
   {
@@ -216,6 +212,7 @@ jaw_action_set_description (AtkAction *action, gint i, const gchar *description)
                                                  jmid,
                                                  (jint)i,
                                                  (jstring)description);
+  jaw_util_check_exception(jniEnv, "jaw_action_set_description");
 
   if (jisset == JNI_TRUE)
   {
@@ -240,6 +237,7 @@ jaw_action_get_name (AtkAction *action, gint i)
                                           "get_name",
                                           "(I)Ljava/lang/String;");
   jstring jstr = (*jniEnv)->CallObjectMethod(jniEnv, atk_action, jmid, (jint)i);
+  jaw_util_check_exception(jniEnv, "jaw_action_get_name");
 
   if (data->action_name != NULL)
   {
@@ -271,6 +269,7 @@ jaw_action_get_localized_name (AtkAction *action, gint i)
                                        "getLocalizedName",
                                        "(I)Ljava/lang/String;");
   jstring jstr = (*env)->CallObjectMethod(env, atk_action, jmid, (jint)i);
+  jaw_util_check_exception(env, "jaw_action_get_localized_name");
   if (data->action_name != NULL)
   {
     (*env)->ReleaseStringUTFChars(env, data->jstrLocalizedName, data->action_name);
@@ -299,6 +298,7 @@ jaw_action_get_keybinding (AtkAction *action, gint i)
                                           "get_keybinding",
                                           "(I)Ljava/lang/String;");
   jstring jstr = (*jniEnv)->CallObjectMethod(jniEnv, atk_action, jmid, (jint)i);
+  jaw_util_check_exception(jniEnv, "jaw_action_get_keybinding");
 
   if (data->action_keybinding != NULL)
   {

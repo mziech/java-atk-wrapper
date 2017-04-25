@@ -1,13 +1,15 @@
 JAVA_SRC=$(wildcard $(srcdir)/*.java)
 CLASSES=$(patsubst %.java,%.class,$(JAVA_SRC))
-BUILD_CLASSES=$(patsubst $(srcdir)%,$(builddir)%,$(CLASSES)) $(builddir)/AtkWrapper.class
+BUILD_CLASSES=$(builddir)/AtkConstants.class $(patsubst $(srcdir)%,$(builddir)%,$(CLASSES))
 
-EXTRA_DIST=$(JAVA_SRC) AtkWrapper.java.in $(srcdir)/*.java
+EXTRA_DIST=$(JAVA_SRC) AtkConstants.java.in $(srcdir)/*.java
 
 all-local: $(BUILD_CLASSES)
 
-AtkWrapper.java : AtkWrapper.java.in
+AtkConstants.java : AtkConstants.java.in
 	sed -e "s;\@XPROP\@;${XPROP};g" \
+		-e "s;\@VERSION\@;${VERSION};g" \
+		-e "s;\@PACKAGE_NAME\@;${PACKAGE_NAME};g" \
 		< $< >$@
 
 %.class : %.java
@@ -15,5 +17,5 @@ AtkWrapper.java : AtkWrapper.java.in
 
 clean-local:
 	$(RM) *.class
-	$(RM) AtkWrapper.java
+	$(RM) AtkConstants.java
 

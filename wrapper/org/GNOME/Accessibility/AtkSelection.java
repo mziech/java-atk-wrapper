@@ -16,66 +16,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 package org.GNOME.Accessibility;
 
-import javax.accessibility.*;
 
-public class AtkSelection {
+public interface AtkSelection {
+    boolean add_selection(int i);
 
-	AccessibleContext ac;
-	AccessibleSelection acc_selection;
+    boolean clear_selection();
 
-	public AtkSelection (AccessibleContext ac) {
-		super();
-		this.ac = ac;
-		this.acc_selection = ac.getAccessibleSelection();
-	}
+    javax.accessibility.Accessible ref_selection(int i);
 
-	public boolean add_selection (int i) {
-		acc_selection.addAccessibleSelection(i);
-		return is_child_selected(i);
-	}
+    int get_selection_count();
 
-	public boolean clear_selection () {
-		acc_selection.clearAccessibleSelection();
-		return true;
-	}
+    boolean is_child_selected(int i);
 
-	public javax.accessibility.Accessible ref_selection (int i) {
-		return acc_selection.getAccessibleSelection(i);
-	}
+    boolean remove_selection(int i);
 
-	public int get_selection_count () {
-		int count = 0;
-		for(int i = 0; i < ac.getAccessibleChildrenCount(); i++) {
-			if (acc_selection.isAccessibleChildSelected(i))
-				count++;
-		}
-
-		return count;
-		//A bug in AccessibleJMenu??
-		//return acc_selection.getAccessibleSelectionCount();
-	}
-
-	public boolean is_child_selected (int i) {
-		return acc_selection.isAccessibleChildSelected(i);
-	}
-
-	public boolean remove_selection (int i) {
-		acc_selection.removeAccessibleSelection(i);
-		return !is_child_selected(i);
-	}
-
-	public boolean select_all_selection () {
-		AccessibleStateSet stateSet = ac.getAccessibleStateSet();
-
-		if (stateSet.contains(AccessibleState.MULTISELECTABLE)) {
-			acc_selection.selectAllAccessibleSelection();
-			return true;
-		}
-
-		return false;
-	}
+    boolean select_all_selection();
 }
-

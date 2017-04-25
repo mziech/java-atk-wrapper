@@ -99,17 +99,7 @@ gpointer
 jaw_table_data_init (jobject ac)
 {
   TableData *data = g_new0(TableData, 1);
-
-  JNIEnv *env = jaw_util_get_jni_env();
-  jclass classTable = (*env)->FindClass(env, "org/GNOME/Accessibility/AtkTable");
-  jmethodID jmid = (*env)->GetMethodID(env,
-                                       classTable,
-                                       "<init>",
-                                       "(Ljavax/accessibility/AccessibleContext;)V");
-
-  jobject jatk_table = (*env)->NewObject(env, classTable, jmid, ac);
-  data->atk_table = (*env)->NewGlobalRef(env, jatk_table);
-
+  data->atk_table = jaw_util_create_object("org/GNOME/Accessibility/AtkTable", ac);
   return data;
 }
 

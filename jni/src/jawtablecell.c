@@ -56,13 +56,7 @@ gpointer
 jaw_table_cell_data_init (jobject ac)
 {
   TableCellData *data = g_new0(TableCellData, 1);
-
-  JNIEnv *jniEnv = jaw_util_get_jni_env();
-  jclass classTableCell = (*jniEnv)->FindClass(jniEnv, "org/GNOME/Accessibility/AtkTableCell");
-  jmethodID jmid = (*jniEnv)->GetMethodID(jniEnv, classTableCell, "<init>", "(Ljavax/accessibility/AccessibleContext;)V");
-  jobject jatk_table_cell = (*jniEnv)->NewObject(jniEnv, classTableCell, jmid, ac);
-  data->atk_table_cell = (*jniEnv)->NewGlobalRef(jniEnv, jatk_table_cell);
-
+  data->atk_table_cell = jaw_util_create_object("org/GNOME/Accessibility/AtkTableCell", ac);
   return data;
 }
 
